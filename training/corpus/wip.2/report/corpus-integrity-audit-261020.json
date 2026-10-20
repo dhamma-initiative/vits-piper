@@ -1,0 +1,279 @@
+{
+  "metrics": {
+    "counts": {
+      "accepted": 999,
+      "rejected": 53,
+      "text": 999,
+      "phonemes": 999
+    },
+    "map": {
+      "symbols": 172,
+      "used_characters": 72,
+      "unused_symbols": 100,
+      "has_u0303": true,
+      "has_u0361": true,
+      "u0303_count": 24,
+      "u0361_count": 134
+    },
+    "release": {
+      "wavs": 1052,
+      "has_text_metadata": false
+    },
+    "training_bundle": {
+      "wavs": 999,
+      "path": "/home/ash/dev/tts/en-pi/release/tts-en-pi-261020-training.tgz"
+    },
+    "audio": {
+      "min_duration": 0.641,
+      "max_duration": 13.791,
+      "mean_duration": 6.456
+    },
+    "checks": {
+      "PASS": 47,
+      "SKIP": 1
+    },
+    "verdict": "PASS"
+  },
+  "checks": [
+    {
+      "name": "accepted CSV structure",
+      "status": "PASS",
+      "detail": "999 data rows, 2 fields each, UTF-8/CRLF"
+    },
+    {
+      "name": "rejected CSV structure",
+      "status": "PASS",
+      "detail": "53 data rows, 2 fields each, UTF-8/CRLF"
+    },
+    {
+      "name": "text CSV structure",
+      "status": "PASS",
+      "detail": "999 data rows, 2 fields each, UTF-8/LF"
+    },
+    {
+      "name": "phoneme CSV structure",
+      "status": "PASS",
+      "detail": "999 data rows, 2 fields each, UTF-8/LF"
+    },
+    {
+      "name": "accepted IDs equal final text IDs and order",
+      "status": "PASS",
+      "detail": "accepted=999, final_text=999, exact_order=True"
+    },
+    {
+      "name": "final text IDs equal final phoneme IDs and order",
+      "status": "PASS",
+      "detail": "text=999, phonemes=999, exact_order=True"
+    },
+    {
+      "name": "accepted IDs unique",
+      "status": "PASS",
+      "detail": "999 unique IDs"
+    },
+    {
+      "name": "rejected IDs unique",
+      "status": "PASS",
+      "detail": "53 unique IDs"
+    },
+    {
+      "name": "text IDs unique",
+      "status": "PASS",
+      "detail": "999 unique IDs"
+    },
+    {
+      "name": "phonemes IDs unique",
+      "status": "PASS",
+      "detail": "999 unique IDs"
+    },
+    {
+      "name": "accepted and rejected IDs disjoint",
+      "status": "PASS",
+      "detail": "no overlap"
+    },
+    {
+      "name": "no empty text or phoneme rows",
+      "status": "PASS",
+      "detail": "empty_text=0, empty_phonemes=0"
+    },
+    {
+      "name": "phoneme map JSON object of symbol -> integer ID",
+      "status": "PASS",
+      "detail": "172 symbols"
+    },
+    {
+      "name": "phoneme map IDs unique and contiguous from 0",
+      "status": "PASS",
+      "detail": "min=0, max=171, unique=172, count=172"
+    },
+    {
+      "name": "every corpus phoneme character exists in map",
+      "status": "PASS",
+      "detail": "72 used characters, all mapped"
+    },
+    {
+      "name": "phoneme strings are NFD-normalized",
+      "status": "PASS",
+      "detail": "all NFD"
+    },
+    {
+      "name": "no control characters in phoneme strings",
+      "status": "PASS",
+      "detail": "none"
+    },
+    {
+      "name": "no digit characters in phoneme strings",
+      "status": "PASS",
+      "detail": "none"
+    },
+    {
+      "name": "no literal ampersand in phoneme strings",
+      "status": "PASS",
+      "detail": "none"
+    },
+    {
+      "name": "text ampersands rendered as a spoken 'and'",
+      "status": "PASS",
+      "detail": "265 text rows contain &; all have spoken and"
+    },
+    {
+      "name": "sidecar IDs match final text prefix",
+      "status": "PASS",
+      "detail": "sidecar=999, final=999, prefix_match=True"
+    },
+    {
+      "name": "sidecar has no extra records",
+      "status": "PASS",
+      "detail": "none"
+    },
+    {
+      "name": "sidecar text matches final text",
+      "status": "PASS",
+      "detail": "all match"
+    },
+    {
+      "name": "sidecar tokens reconstruct phoneme strings",
+      "status": "PASS",
+      "detail": "all match"
+    },
+    {
+      "name": "sidecar IDs equal map lookup of tokens",
+      "status": "PASS",
+      "detail": "all match"
+    },
+    {
+      "name": "release contains all accepted WAVs",
+      "status": "PASS",
+      "detail": "999 accepted present"
+    },
+    {
+      "name": "release has expected UAT inventory",
+      "status": "PASS",
+      "detail": "53 extra WAVs, 53 rejected, 0 unexpected; expected UAT superset"
+    },
+    {
+      "name": "release extras equal rejected set",
+      "status": "PASS",
+      "detail": "extras=53, rejected=53, exact=True"
+    },
+    {
+      "name": "audio dir contains all accepted WAVs",
+      "status": "PASS",
+      "detail": "999 accepted present"
+    },
+    {
+      "name": "audio dir has expected UAT inventory",
+      "status": "PASS",
+      "detail": "53 extra WAVs, 53 rejected, 0 unexpected; expected UAT superset"
+    },
+    {
+      "name": "audio dir extras equal rejected set",
+      "status": "PASS",
+      "detail": "extras=53, rejected=53, exact=True"
+    },
+    {
+      "name": "release phoneme metadata matches final phoneme CSV",
+      "status": "SKIP",
+      "detail": "sha256 release=ab91c6160e3850bd, final=fb6eb170832e08dd; v1.1.0 is historical and predates the approved one-row phoneme cleanup"
+    },
+    {
+      "name": "UAT release README is historical",
+      "status": "PASS",
+      "detail": "contains historical 260808 reference"
+    },
+    {
+      "name": "training bundle WAV inventory is exactly accepted",
+      "status": "PASS",
+      "detail": "bundle=999, accepted=999, rejected=0"
+    },
+    {
+      "name": "training bundle metadata-text-enpi.csv matches source",
+      "status": "PASS",
+      "detail": "metadata-text-enpi.csv"
+    },
+    {
+      "name": "training bundle metadata-phonemes-enpi.csv matches source",
+      "status": "PASS",
+      "detail": "metadata-phonemes-enpi.csv"
+    },
+    {
+      "name": "training bundle phoneme-map.json matches source",
+      "status": "PASS",
+      "detail": "phoneme-map.json"
+    },
+    {
+      "name": "training bundle README is current",
+      "status": "PASS",
+      "detail": "README documents 261020 and 999 utterances"
+    },
+    {
+      "name": "training bundle has manifest and WAV hashes",
+      "status": "PASS",
+      "detail": "manifest=True, wav_hashes=True"
+    },
+    {
+      "name": "accepted WAVs readable with valid headers",
+      "status": "PASS",
+      "detail": "999 files read"
+    },
+    {
+      "name": "accepted WAV format is consistent",
+      "status": "PASS",
+      "detail": "formats={(1, 2, 22050): 999}"
+    },
+    {
+      "name": "training config records builder commit",
+      "status": "PASS",
+      "detail": "commit=a90f56440eb9f51b21b5588f559af7a2dfb6b54b"
+    },
+    {
+      "name": "training config pins ampersand preprocess",
+      "status": "PASS",
+      "detail": "7 rules; amp_rule=True"
+    },
+    {
+      "name": "config path exists: phoneme_id_map",
+      "status": "PASS",
+      "detail": "./config/espeak-v1.51[en-gb]_aksharamukha-2.1.0[pi]-map.json"
+    },
+    {
+      "name": "config path exists: english_ipa_map",
+      "status": "PASS",
+      "detail": "./config/pho_en[gb]-to-espeak-v1.51-ipa.json"
+    },
+    {
+      "name": "config path exists: pali_ipa_map",
+      "status": "PASS",
+      "detail": "./config/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json"
+    },
+    {
+      "name": "input-research books use 261020 stable names",
+      "status": "PASS",
+      "detail": "no stale names"
+    },
+    {
+      "name": "README documents current 261020 corpus",
+      "status": "PASS",
+      "detail": "current section and training bundle present"
+    }
+  ]
+}

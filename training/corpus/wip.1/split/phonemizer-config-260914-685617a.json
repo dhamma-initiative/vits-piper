@@ -1,0 +1,73 @@
+{
+    "is_debug_mode": false,
+    "phoneme_ext": ".pho",
+    "ext_to_process": "punct-2-v1.0.csv",
+    "text_suttas_root": "/home/ash/dev/tts/en-pi/corpus/wip/split",
+    "transform_text_suttas_root": "/home/ash/dev/tts/en-pi/corpus/wip/split/260914-685617a",
+    "read_as_corpus": true,
+    "read_as_phonemes": false,
+    "write_to_disk": true,
+    "save_as_json": false,
+    "tokenize": true,    
+    "strict_mode": true,
+
+    "phoneme_id_map": "/home/ash/dev/di/vits-piper/training/phoneme/en[gb]_pi[si]-suttaplayer-phoneme-map.json",
+    "english_ipa_map": "/home/ash/dev/di/vits-piper/training/phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
+    "pali_ipa_map": "/home/ash/dev/di/vits-piper/training/phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
+
+    "_notes_": "modifications required to dictionary & phonemes to correct pronunciation defects",
+    "patchProcessRegExFindReplList": [
+        ["ʃɪp", "ʃˌɪp", "g"],
+        ["s̪ɦɪp", "ʃˌɪp", "g"],
+        ["mˈʌŋks! dwˈɛl ", "mˈʌŋks! _ dwˈɛl", "g"],
+        ["dəθˈɔːnd!", "dəθˈɔːnd _!", "g"],
+        ["^ðˈə", "_ ðˈə", "g"],
+        ["^ðˈɛn ɦət̪t̪ʰəkə", "ðˈɛn _ ɦət̪t̪ʰəkə", "g"],
+        ["^fˈɔːti sˈɪks.", "_ fˈɔːti sˈɪks.", "g"],
+        ["ɡˈɑːdiənz ˈɒv ðˈə wˈɜːld—", "ɡˈɑːdiənz ˈɒv ðˈə wˈɜːld —", "g"],
+        [" səpˈəʊz", "_ səpˈəʊz", "g"],
+        ["mˈʌŋks θˈɪŋk", "mˈʌŋks _ θˈɪŋk", "g"],
+        [" ʃˈeɪv", " ʃˈeɪv_", "g"],
+        [" ɐɹˈeɪndʒɪŋ", " _ ɐɹˈeɪndʒɪŋ", "g"],
+        ["^pətˈɜːbɪŋ", "_ pətˈɜːbɪŋ", "g"],
+        ["^sɛktˈeəɹiənz", "_ sɛktˈeəɹiənz", "g"],
+        ["^'ɐmˈʌŋ wɒtˈɛvə", "'ɐmˈʌŋ _ wɒtˈɛvə", "g"],
+        ["^ðˈʌs", "_ ðˈʌs", "g"],
+        ["nˈɒn-ɹɪtˈɜːn.'$", "nˈɒn-ɹɪtˈɜːn_.'", "g"],
+        ["^ˈɑː ", "_ ˈɑː ", "g"],
+        ["^sʌfjˈuːzɪz ", "_ sʌfjˈuːzɪz ", "g"],
+        ["^ɐflˈeɪm– ", "_ ɐflˈeɪm– ", "g"],
+        ["hˈɪz mˈaɪnd", "hˈɪz _ mˈaɪnd", "g"]
+    ],
+    "dictionaryResponder": {
+        "customPhonemes": {
+            "bless'ed": "blˈɛsɛd",
+            "live": "lˈɪv",
+            "lives": "lˈɪvz",
+            "lyve": "lˈaɪɪv",
+            "lyves": "lˈaɪɪvz",
+            "alive": "ɐlˈaɪɪv",
+            "livelihood": "lˈaɪɪvlihˌʊd",
+            "medicine": "mˈɛdɛsən",
+
+            "demerit": "dəmˈɛɹɪt",
+            "dethorned": "dəθˈɔːnd",
+            "detaches": "dɪtˈat‍ʃɪz",
+            "detached": "dɪtˈat‍ʃt",
+            "worship": "wˈɜːʃˌhɪp",
+            "examining": "ɛɡzˈeəmɪnɪŋ",
+            "therefore": "ðe‍əfˈɔː",
+            "characterized": "kˈaɹɪk tˈəɹˌaɪzd",
+            "unknowing": "ʌn nˈəʊɪŋ",
+            "four": "fˈɔːɔː",
+            "pursuing": "pəsˈuːɪŋ",
+            "whatever": "wˌɒtˈɛvə",
+            "mass": "mˈaeəs",
+            "sorrow": "sˈɒɹɹəʊ",
+
+            "upāḷi": "_ uːpɑːɭɪ",
+            "kusal'akusala": "kus̪əl _ 'əkus̪ələ"
+        },
+        "hatthaka": "_ ɦət̪t̪ʰəkə"
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "is_debug_mode": false,
+    "phoneme_ext": ".pho",
+    "ext_to_process": "metadata-text-enpi.csv",
+    "preProcessRegExFindReplaceList": [
+        ["[-–—]?[^\\S\\r\\n]*&[^\\S\\r\\n]*[-–—]?", " and "],
+        ["&", " and "],
+        ["(DHAMMAPADA|ITIVUTTAKA|KHUDDAKAPĀṬHA)", "$1."],
+        ["(SUTTA NIPĀTA|THERAGĀTHĀ|THERĪGĀTHĀ|UDĀNA)\\s+([:\\d]+)", "$1. $2."],
+        ["\\s+((AṄGUTTARA|DĪGHA|MAJJHIMA|SAṀYUTTA)\\s+NIKĀYA)", ". $1."],
+        ["\\bblessed(\\s+one)\\b", "bless'ed$1", "gmiu"],
+        [
+            "\\b(in|past|their|future|previous|former|of|entire|the)\\s+lives\\b", 
+            "$1 lyves",
+            "gmiu"
+        ]
+    ],
+    "postProcessRegExFindReplList": [
+        ["=", " "],
+        ["[\\u200b-\\u200d\\ufeff\\u200e\\u200f]", "", "g"]
+    ],
+    "text_suttas_root": "./corpus/wip.2/",
+    "transform_text_suttas_root": "./corpus/wip.2/",
+    "read_as_corpus": true,
+    "read_as_phonemes": false,
+    "write_to_disk": true,
+    "save_as_json": true,
+    "tokenize": true,    
+    "strict_mode": true,
+
+    "_content_for_maps_": [
+        "ash@kassapa-l:~/dev/di/dt.o-suttas-builder$ git log",
+        "commit a90f56440eb9f51b21b5588f559af7a2dfb6b54b (HEAD -> 261020, origin/opencode-pipeline-runner, origin/261020, opencode-pipeline-runner)",
+        "Author: suttaplayer <suttaplayer@gmail.com>",
+        "Date:   Tue Oct 20 16:48:32 2026 +1100"
+    ],    
+    "phoneme_id_map": "./config/espeak-v1.51[en-gb]_aksharamukha-2.1.0[pi]-map.json",
+    "english_ipa_map": "./config/pho_en[gb]-to-espeak-v1.51-ipa.json",
+    "pali_ipa_map": "./config/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json"
+}

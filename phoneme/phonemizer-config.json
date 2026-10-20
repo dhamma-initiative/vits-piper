@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "ver2-261020-9429",
+  "english_ipa_map": {
+    "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
+    "sha256": "92eeb3d04c0fe165a6df9769e6156e19b13a3fdb28d47da1dcbd47170849d011",
+    "sourceVersion": "2610.20.00"
+  },
+  "pali_ipa_map": {
+    "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
+    "sha256": "1a42b887bc4c3fcacd2541c5f5fb9b72cad1d4e97c04bf0d8105e0bf65b0bece",
+    "sourceVersion": "2610.20.00"
+  },
+  "tokenize": true,
+  "strictMode": false,
+  "preProcessRegExFindReplaceList": [
+      ["[-–—]?[^\\S\\r\\n]*&[^\\S\\r\\n]*[-–—]?", " and "],
+      ["&", " and "],
+      ["(DHAMMAPADA|ITIVUTTAKA|KHUDDAKAPĀṬHA)", "$1."],
+      ["(SUTTA NIPĀTA|THERAGĀTHĀ|THERĪGĀTHĀ|UDĀNA)\\s+([:\\d]+)", "$1. $2."],
+      ["\\s+((AṄGUTTARA|DĪGHA|MAJJHIMA|SAṀYUTTA)\\s+NIKĀYA)", ". $1."],
+      ["\\bblessed(\\s+one)\\b", "bless'ed$1", "gmiu"],
+      [
+          "\\b(in|past|their|future|previous|former|of|entire|the)\\s+lives\\b", 
+          "$1 lyves",
+          "gmiu"
+      ]
+  ],
+  "postProcessRegExFindReplList.next-training": [
+      ["=", " "],
+      ["['`’]", "", "g"],
+      ["[\\u200b-\\u200d\\ufeff\\u200e\\u200f]", "", "g"]
+  ],
+  "postProcessRegExFindReplList": [
+      ["=", " "],
+      ["[\\u200b-\\u200d\\ufeff\\u200e\\u200f]", "", "g"]
+  ],
+  "patchProcessRegExFindReplList": [
+  ],
+  "dictionaryResponder": {
+      "customPhonemes": {}
+  },
+  "invalidTerm": "ˈɪn vˈælɪd tˈɜːm"
+}

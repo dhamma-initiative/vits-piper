@@ -531,7 +531,6 @@
       171
     ]
   },
-  "source": "epoch=9561-val_mel=0.2893.ckpt",
   "speaker_id_map": {},
   "hop_length": 256,
   "default_speaker_id": 0,

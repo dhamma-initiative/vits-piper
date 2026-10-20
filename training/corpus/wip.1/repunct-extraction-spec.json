@@ -1,0 +1,10 @@
+{
+    "_notes_": "Extract all utterances containing high-duration punctuation marks (>600ms) occurring mid-utterance.",
+    "regex_match_array": [
+        "•",
+        "…(?=.*\\w)",
+        "\\.(?=.*\\w)",
+        "\\?(?=.*\\w)",
+        "!(?=.*\\w)"
+    ]
+}
