@@ -132,11 +132,23 @@ python3 ../scripts/generate_uat_verification.py \
   --limit 20
 ```
 
+For a much smaller review set, use coverage mode:
+
+```bash
+python3 ../scripts/generate_uat_verification.py --strategy coverage \
+  --model ../model/en_gb-suttaplayer-medium.onnx \
+  --config ../model/en_gb-suttaplayer-medium.onnx.json \
+  --out-dir ./uat-verification-coverage
+```
+
 Inspect the selection without synthesizing:
 
 ```bash
 python3 ../scripts/generate_uat_verification.py --dry-run --limit 20 \
   --out-dir ./uat-verification-enpi
+
+python3 ../scripts/generate_uat_verification.py --strategy coverage --dry-run \
+  --out-dir ./uat-verification-coverage
 ```
 
 Continue a partial run, or generate only Pali targets:
@@ -153,12 +165,13 @@ python3 ../scripts/generate_uat_verification.py --language pi \
   --out-dir ./uat-verification-pi
 ```
 
-Review with the existing server:
+Review with the existing server. Use the review metadata file so coverage
+clips show their target terms:
 
 ```bash
 python3 ../../../tts/en-pi/scripts/review_corpus_server.py \
-  -i ./uat-verification-enpi/metadata-uat-verification-enpi.csv \
-  -w ./uat-verification-enpi/wavs/
+  -i ./uat-verification-coverage/metadata-uat-verification-enpi.review.csv \
+  -w ./uat-verification-coverage/wavs/
 ```
 
 ### Output
@@ -166,15 +179,38 @@ python3 ../../../tts/en-pi/scripts/review_corpus_server.py \
 ```text
 OUT/
 ├── metadata-uat-verification-enpi.csv
+├── metadata-uat-verification-enpi.review.csv
+├── uat-verification-coverage.csv
 ├── uat-verification-manifest.csv
 └── wavs/
-    ├── EN_00000_the.wav
+    ├── EN_00000_the.wav     # per-term mode
+    ├── COV_00000.wav        # coverage mode
     └── ...
 ```
 
-`--start` and `--limit` select a stable slice using indices from the full
-language list. `--resume` reuses valid existing WAVs. The metadata is rewritten
-for the selected slice on each run.
+`metadata-uat-verification-enpi.csv` remains 2-column LJSpeech metadata. The
+`.review.csv` file prefixes each transcript with its target terms for reviewer
+display; `--review-target-limit` controls how many are shown before `(+N more)`.
+`uat-verification-coverage.csv` maps every target to its WAV, so nothing is lost
+when the review display truncates a long target list.
+
+`--start` and `--limit` select a stable slice using target indices in per-term
+mode and clip indices in coverage mode. `--resume` reuses valid existing WAVs.
+The metadata files are rewritten for the selected slice on each run.
+
+### Coverage mode
+
+Coverage mode never concatenates words into one artificial sentence. It selects
+real source sentences and verifies every target term that appears in a selected
+sentence, so one clip can cover many vocabulary entries. The selection is
+greedy: complete sentences with balanced quotes are used first, then balanced
+clauses for terms that no complete sentence covers, then any remaining source
+utterance, then carrier fallbacks.
+
+On the current corpus this selects about 5,466 clips instead of 12,390 per-term
+clips. If a multi-target clip is rejected during review, use
+`uat-verification-coverage.csv` to identify and regenerate all terms assigned to
+that clip.
 
 ### Selection rules
 
@@ -185,8 +221,9 @@ for the selected slice on each run.
 - Headings, all-caps text, unbalanced quotes, and lines without the target are
   penalized.
 - Inflected variants are accepted when they share the target stem.
-- Terms with no source occurrence use a short carrier:
-  `The term is <term>.` Use `--fallback skip` to omit them instead.
+- Terms with no source occurrence use a carrier:
+  `The word is <term> and it is used here.` Use
+  `--fallback skip` to omit them instead.
 - Pali targets are currently demonstrated in English sutta prose that uses the
   Pali term. A separate grammatical Pali source corpus would be required for
   Pali-only sentences.
@@ -199,23 +236,27 @@ for the selected slice on each run.
 | `--en-vocab PATH` | sibling `.../english-transliteration-freq-list.csv` | English vocabulary CSV. |
 | `--pi-vocab PATH` | sibling `.../pali-transliteration-freq-list.csv` | Pali vocabulary CSV. |
 | `--language {both,en,pi}` | `both` | Target languages. |
+| `--strategy {per-term,coverage}` | `per-term` | One WAV per target, or many targets per natural WAV. |
 | `--out-dir PATH` | `uat-verification-enpi` | Output directory. |
-| `--metadata PATH` | `OUT/metadata-uat-verification-enpi.csv` | LJSpeech metadata path. |
+| `--metadata PATH` | `OUT/metadata-uat-verification-enpi.csv` | 2-column LJSpeech metadata path. |
+| `--review-metadata PATH` | `OUT/metadata-uat-verification-enpi.review.csv` | Reviewer display metadata with target prefixes. |
+| `--coverage PATH` | `OUT/uat-verification-coverage.csv` | Target-to-WAV coverage map. |
+| `--review-target-limit N` | `12` | Maximum targets shown per review row. |
 | `--manifest PATH` | `OUT/uat-verification-manifest.csv` | Detailed manifest path. |
 | `--model PATH` | `model/en_gb-suttaplayer-medium.onnx` | Piper ONNX model. |
 | `--config PATH` | `model/en_gb-suttaplayer-medium.onnx.json` | Piper model config. |
 | `--phonemizer-config PATH` | `phoneme/phonemizer-config.json` | Runtime phonemizer rules. |
 | `--en-map PATH` | sibling `suttas/phoneme/...` | English IPA map. |
 | `--pi-map PATH` | sibling `suttas/phoneme/...` | Pali IPA map. |
-| `--start N` | `0` | First target index. |
-| `--limit N` | `0` | Maximum targets; `0` means all. |
+| `--start N` | `0` | First target or clip index. |
+| `--limit N` | `0` | Maximum targets or clips; `0` means all. |
 | `--resume` | off | Reuse valid existing WAVs. |
 | `--dry-run` | off | Report selection only. |
 | `--min-words N` | `5` | Minimum words per utterance. |
 | `--max-words N` | `28` | Maximum words per utterance. |
 | `--max-chars N` | `240` | Maximum characters per utterance. |
 | `--fallback {carrier,skip}` | `carrier` | Behavior when no source sentence contains the term. |
-| `--warmup N` | `2` | Discarded model warm-up runs. |
+| `--warmup N` | `2` | Discarded model warm-up runs (runtime initialization only). |
 | `--provider NAME` | `CPUExecutionProvider` | ONNX Runtime provider. |
 | `--length-scale F` | model config | Piper duration scale. |
 | `--noise-scale F` | model config | Piper noise scale. |

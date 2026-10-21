@@ -1,30 +1,34 @@
 #!/usr/bin/env python3
 """Build a natural-sentence UAT vocabulary corpus and synthesize it.
 
-The vocabulary lists contain isolated words. This tool finds each word in real
-sutta prose, emits one LJSpeech-style WAV per target, and writes a 2-column
-metadata file that review_corpus_server.py can open directly.
-
-Typical use from this repository's tmp/ directory:
+The vocabulary lists contain isolated words. By default this tool finds each
+word in real sutta prose, emits one LJSpeech-style WAV per target, and writes a
+2-column metadata file that review_corpus_server.py can open directly.
 
   python ../scripts/generate_uat_verification.py \
     --model ../model/en_gb-suttaplayer-medium.onnx \
     --config ../model/en_gb-suttaplayer-medium.onnx.json \
     --out-dir ./uat-verification-enpi
 
+With --strategy coverage, one natural WAV can verify many target terms. The
+2-column metadata stays unchanged; a separate review metadata file shows the
+target terms for each clip, and a coverage CSV maps every target to its clip.
+
 The metadata file is written as:
 
   OUT/metadata-uat-verification-enpi.csv
   wav_name.wav|Natural sentence containing the target term.
 
-Each filename includes the target term, for example
-EN_00042_dhamma.wav or PI_00107_sutta.wav.
+Per-term filenames include the target term, for example
+EN_00042_dhamma.wav or PI_00107_sutta.wav. Coverage filenames are
+COV_00000.wav, COV_00001.wav, and so on.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import heapq
 import json
 import math
 import os
@@ -96,16 +100,25 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--en-vocab", default=str(DEFAULT_EN_VOCAB), help="English vocabulary CSV")
     p.add_argument("--pi-vocab", default=str(DEFAULT_PI_VOCAB), help="Pali vocabulary CSV")
     p.add_argument("--language", choices=("both", "en", "pi"), default="both")
+    p.add_argument(
+        "--strategy",
+        choices=("per-term", "coverage"),
+        default="per-term",
+        help="per-term emits one WAV per target; coverage greedily covers many targets per WAV",
+    )
     p.add_argument("--out-dir", default="uat-verification-enpi", help="Output directory")
     p.add_argument("--metadata", default=argparse.SUPPRESS, help="Metadata path (default: OUT/metadata-uat-verification-enpi.csv)")
     p.add_argument("--manifest", default=argparse.SUPPRESS, help="Manifest path (default: OUT/uat-verification-manifest.csv)")
+    p.add_argument("--coverage", default=argparse.SUPPRESS, help="Coverage map path (default: OUT/uat-verification-coverage.csv)")
+    p.add_argument("--review-metadata", default=argparse.SUPPRESS, help="Reviewer display metadata (default: OUT/metadata-uat-verification-enpi.review.csv)")
+    p.add_argument("--review-target-limit", type=int, default=12, help="Maximum target terms shown per review row")
     p.add_argument("--model", default=str(DEFAULT_MODEL), help="Piper ONNX model")
     p.add_argument("--config", default=str(DEFAULT_CONFIG), help="Piper .onnx.json config")
     p.add_argument("--phonemizer-config", default=str(DEFAULT_PHONEMIZER_CONFIG), help="Runtime phonemizer config")
     p.add_argument("--en-map", default=argparse.SUPPRESS, help="English IPA map (default: sibling suttas, then training/config)")
     p.add_argument("--pi-map", default=argparse.SUPPRESS, help="Pali IPA map (default: sibling suttas, then training/config)")
-    p.add_argument("--start", type=int, default=0, help="First target index after selection")
-    p.add_argument("--limit", type=int, default=0, help="Maximum targets; 0 means all")
+    p.add_argument("--start", type=int, default=0, help="First target or clip index after selection")
+    p.add_argument("--limit", type=int, default=0, help="Maximum targets or clips; 0 means all")
     p.add_argument("--resume", action="store_true", help="Reuse valid existing WAVs")
     p.add_argument("--dry-run", action="store_true", help="Report selection only; do not write audio or metadata")
     p.add_argument("--min-words", type=int, default=5, help="Minimum words in an utterance")
@@ -357,6 +370,11 @@ def build_index(sources: list[dict]) -> dict[str, list[int]]:
 
 
 def quote_balance(text: str) -> bool:
+    stripped = text.strip()
+    if stripped and stripped[0] in "'\"“‘":
+        closing = {"'": "'", '"': '"', "“": "”", "‘": "’"}[stripped[0]]
+        if not stripped.endswith(closing):
+            return False
     text = re.sub(r"(?<=\w)['’](?=\w)", "", text)
     if text.count("'") % 2:
         return False
@@ -450,48 +468,180 @@ def load_map(primary: Path, fallback: Path, override: str, label: str) -> dict[s
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def load_entries(args: argparse.Namespace, sources: list[dict], index: dict[str, list[int]]) -> list[dict]:
+def load_targets(args: argparse.Namespace) -> list[dict]:
     groups: list[tuple[str, Path, str]] = []
     if args.language in ("both", "en"):
         groups.append(("en", Path(args.en_vocab), "english"))
     if args.language in ("both", "pi"):
         groups.append(("pi", Path(args.pi_vocab), "pali"))
 
-    entries: list[dict] = []
-    used: set[int] = set()
+    targets: list[dict] = []
     for lang, path, field in groups:
         vocab = read_vocab(path, field)
         print(f"{lang.upper()} vocabulary: {len(vocab)} entries from {path}")
         for ordinal, (term, freq) in enumerate(vocab, start=1):
-            source, used_variant, source_index = choose_source(sources, index, term, used)
-            fallback = ""
-            if source is None:
-                if args.fallback == "skip":
-                    continue
-                text = f"The term is {term}."
-                fallback = "carrier"
-                source = {"text": text, "source": "", "word_count": len(TERM_RE.findall(text))}
-            else:
-                used.add(source_index)
-            text = source["text"].replace("|", " ")
-            if text and text[0].islower():
-                text = text[0].upper() + text[1:]
-            entries.append(
+            targets.append(
                 {
                     "language": lang,
                     "term": term,
                     "freq": freq,
-                    "source": source["source"],
-                    "text": text,
-                    "fallback": fallback,
-                    "variant": used_variant,
                     "ordinal": ordinal,
+                    "target_index": len(targets),
                 }
             )
+    return targets
+
+
+def load_entries(
+    args: argparse.Namespace,
+    sources: list[dict],
+    index: dict[str, list[int]],
+    targets: list[dict],
+) -> list[dict]:
+    entries: list[dict] = []
+    used: set[int] = set()
+    for target in targets:
+        term = target["term"]
+        source, used_variant, source_index = choose_source(sources, index, term, used)
+        fallback = ""
+        if source is None:
+            if args.fallback == "skip":
+                continue
+            text = f"The word is {term} and it is used here."
+            fallback = "carrier"
+            source = {"text": text, "source": "", "word_count": len(TERM_RE.findall(text))}
+        else:
+            used.add(source_index)
+        text = source["text"].replace("|", " ")
+        if text and text[0].islower():
+            text = text[0].upper() + text[1:]
+        entries.append(
+            {
+                "language": target["language"],
+                "term": term,
+                "freq": target["freq"],
+                "source": source["source"],
+                "text": text,
+                "fallback": fallback,
+                "variant": used_variant,
+                "ordinal": target["ordinal"],
+                "targets": [target],
+                "new_count": 1,
+                "all_count": 1,
+            }
+        )
     entries.sort(key=lambda e: (e["language"], e["ordinal"]))
     for i, entry in enumerate(entries):
         entry["index"] = i
         entry["wav"] = f"{entry['language'].upper()}_{i:05d}_{sanitize_name(entry['term'])}.wav"
+    return entries
+
+
+def load_coverage_entries(
+    args: argparse.Namespace,
+    sources: list[dict],
+    targets: list[dict],
+) -> list[dict]:
+    token_to_targets: dict[str, list[int]] = defaultdict(list)
+    for target in targets:
+        for value in variants(target["term"]):
+            token_to_targets[value].append(target["target_index"])
+
+    covers: list[set[int]] = []
+    quality: list[float] = []
+    for source in sources:
+        covered: set[int] = set()
+        for token in source["tokens"]:
+            ids = token_to_targets.get(token)
+            if ids:
+                covered.update(ids)
+        covers.append(covered)
+        quality.append(score_source(source, "__uat__", True))
+
+    uncovered = {target["target_index"] for target in targets}
+    entries: list[dict] = []
+    selected_indices: set[int] = set()
+
+    def select_from(candidate_indices: list[int]) -> None:
+        nonlocal uncovered
+        heap = [
+            (-len(covers[i]), -quality[i], i)
+            for i in candidate_indices
+            if i not in selected_indices and covers[i]
+        ]
+        heapq.heapify(heap)
+        while uncovered and heap:
+            neg_count, neg_quality, source_index = heapq.heappop(heap)
+            if source_index in selected_indices:
+                continue
+            newly_covered = covers[source_index] & uncovered
+            if not newly_covered:
+                continue
+            key = (-len(newly_covered), neg_quality)
+            if heap and key > heap[0][:2]:
+                heapq.heappush(heap, (key[0], key[1], source_index))
+                continue
+            selected_indices.add(source_index)
+            source = sources[source_index]
+            text = source["text"].replace("|", " ")
+            if text and text[0].islower():
+                text = text[0].upper() + text[1:]
+            selected_targets = [targets[i] for i in sorted(newly_covered)]
+            entries.append(
+                {
+                    "language": "mixed",
+                    "term": "",
+                    "freq": 0,
+                    "source": source["source"],
+                    "text": text,
+                    "fallback": "",
+                    "variant": "",
+                    "ordinal": 0,
+                    "targets": selected_targets,
+                    "new_count": len(selected_targets),
+                    "all_count": len(covers[source_index]),
+                }
+            )
+            uncovered -= newly_covered
+
+    natural = [
+        i
+        for i, source in enumerate(sources)
+        if source.get("kind") == "sentence" and quote_balance(source["text"])
+    ]
+    select_from(natural)
+
+    if uncovered:
+        balanced = [i for i, source in enumerate(sources) if quote_balance(source["text"])]
+        select_from(balanced)
+
+    if uncovered:
+        select_from(list(range(len(sources))))
+
+    if args.fallback != "skip":
+        for target_index in sorted(uncovered):
+            target = targets[target_index]
+            term = target["term"]
+            text = f"The word is {term} and it is used here."
+            entries.append(
+                {
+                    "language": target["language"],
+                    "term": term,
+                    "freq": target["freq"],
+                    "source": "",
+                    "text": text,
+                    "fallback": "carrier",
+                    "variant": "",
+                    "ordinal": target["ordinal"],
+                    "targets": [target],
+                    "new_count": 1,
+                    "all_count": 1,
+                }
+            )
+
+    for i, entry in enumerate(entries):
+        entry["index"] = i
+        entry["wav"] = f"COV_{i:05d}.wav"
     return entries
 
 
@@ -504,9 +654,14 @@ def main() -> int:
     if args.min_words < 1 or args.max_words < args.min_words:
         raise SystemExit("invalid --min-words/--max-words")
 
+    if args.review_target_limit < 1:
+        raise SystemExit("--review-target-limit must be >= 1")
+
     out_dir = Path(args.out_dir)
     metadata_path = Path(args.metadata) if getattr(args, "metadata", None) else out_dir / "metadata-uat-verification-enpi.csv"
     manifest_path = Path(args.manifest) if getattr(args, "manifest", None) else out_dir / "uat-verification-manifest.csv"
+    coverage_path = Path(args.coverage) if getattr(args, "coverage", None) else out_dir / "uat-verification-coverage.csv"
+    review_path = Path(args.review_metadata) if getattr(args, "review_metadata", None) else out_dir / "metadata-uat-verification-enpi.review.csv"
     wav_dir = out_dir / "wavs"
 
     print(f"text root: {args.text_root}")
@@ -515,14 +670,22 @@ def main() -> int:
         raise SystemExit("no usable source sentences found")
     print(f"source utterances: {len(sources)}")
     index = build_index(sources)
+    targets = load_targets(args)
 
-    entries = load_entries(args, sources, index)
+    if args.strategy == "coverage":
+        entries = load_coverage_entries(args, sources, targets)
+    else:
+        entries = load_entries(args, sources, index, targets)
     selected = entries[args.start :]
     if args.limit:
         selected = selected[: args.limit]
     if not selected:
-        raise SystemExit("no targets selected")
-    print(f"targets: {len(selected)} selected from {len(entries)}")
+        raise SystemExit("no entries selected")
+    if args.strategy == "coverage":
+        covered_count = sum(entry["new_count"] for entry in selected)
+        print(f"clips: {len(selected)} selected from {len(entries)}; targets covered: {covered_count}")
+    else:
+        print(f"targets: {len(selected)} selected from {len(entries)}")
 
     en_map = load_map(DEFAULT_EN_MAP, FALLBACK_EN_MAP, getattr(args, "en_map", None), "English IPA")
     pi_map = load_map(DEFAULT_PI_MAP, FALLBACK_PI_MAP, getattr(args, "pi_map", None), "Pali IPA")
@@ -552,10 +715,12 @@ def main() -> int:
     counts = Counter(e["fallback"] or "source" for e in prepared)
     print("selection: " + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())))
     for entry in prepared[:5]:
-        print(f"  {entry['wav']} | {entry['text']}")
+        names = ", ".join(target["term"] for target in entry["targets"])
+        print(f"  {entry['wav']} [{len(entry['targets'])}] {names} | {entry['text']}")
 
     manifest_fields = [
         "index",
+        "strategy",
         "language",
         "term",
         "freq",
@@ -564,6 +729,9 @@ def main() -> int:
         "source",
         "fallback",
         "variant",
+        "targets",
+        "target_count",
+        "all_count",
         "words",
         "ids",
         "duration_s",
@@ -573,13 +741,15 @@ def main() -> int:
     if args.dry_run:
         lengths = [e["ids"] for e in prepared]
         print(f"id length: min={min(lengths)} median={int(np.median(lengths))} max={max(lengths)}")
+        if args.strategy == "coverage":
+            print(f"coverage: {sum(e['new_count'] for e in prepared)} targets across {len(prepared)} clips")
         print(f"would write {len(prepared)} WAVs and {metadata_path}")
         return 0
 
     out_dir.mkdir(parents=True, exist_ok=True)
     wav_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    for path in (manifest_path, metadata_path, coverage_path, review_path):
+        path.parent.mkdir(parents=True, exist_ok=True)
 
     sample_rate = int(model_config.get("audio", {}).get("sample_rate", 22050))
     inference = model_config.get("inference", {})
@@ -619,10 +789,18 @@ def main() -> int:
     done = 0
     reused = 0
     failed: list[dict] = []
-    with metadata_path.open("w", encoding="utf-8", newline="") as mf, manifest_path.open("w", encoding="utf-8", newline="") as ff:
+    with (
+        metadata_path.open("w", encoding="utf-8", newline="") as mf,
+        manifest_path.open("w", encoding="utf-8", newline="") as ff,
+        coverage_path.open("w", encoding="utf-8", newline="") as cf,
+        review_path.open("w", encoding="utf-8", newline="") as rf,
+    ):
         metadata_writer = csv.writer(mf, delimiter="|", lineterminator="\n")
-        manifest_writer = csv.DictWriter(ff, fieldnames=manifest_fields)
+        manifest_writer = csv.DictWriter(ff, fieldnames=manifest_fields, lineterminator="\n")
+        coverage_writer = csv.writer(cf, delimiter="|", lineterminator="\n")
+        review_writer = csv.writer(rf, delimiter="|", lineterminator="\n")
         manifest_writer.writeheader()
+        coverage_writer.writerow(["wav", "language", "target", "target_index", "source", "fallback", "strategy", "clip_target_count"])
         for entry in prepared:
             wav_path = wav_dir / entry["wav"]
             duration = 0.0
@@ -649,10 +827,29 @@ def main() -> int:
                     elapsed = time.time() - started
                     print(f"  {done + reused}/{len(prepared)}  {done / max(elapsed, 1e-9):.1f}/s  elapsed={elapsed / 60:.1f}m")
 
+            target_names = [target["term"] for target in entry["targets"]]
+            shown = target_names[: args.review_target_limit]
+            suffix = f" (+{len(target_names) - len(shown)} more)" if len(target_names) > len(shown) else ""
+            label = "Target" if len(target_names) == 1 else f"Targets ({len(target_names)})"
+            review_writer.writerow([entry["wav"], f"{label}: {', '.join(shown)}{suffix} — {entry['text']}"])
             metadata_writer.writerow([entry["wav"], entry["text"]])
+            for target in entry["targets"]:
+                coverage_writer.writerow(
+                    [
+                        entry["wav"],
+                        target["language"],
+                        target["term"],
+                        target["target_index"],
+                        entry["source"],
+                        entry["fallback"],
+                        args.strategy,
+                        len(entry["targets"]),
+                    ]
+                )
             manifest_writer.writerow(
                 {
                     "index": entry["index"],
+                    "strategy": args.strategy,
                     "language": entry["language"],
                     "term": entry["term"],
                     "freq": entry["freq"],
@@ -661,6 +858,9 @@ def main() -> int:
                     "source": entry["source"],
                     "fallback": entry["fallback"],
                     "variant": entry["variant"],
+                    "targets": "; ".join(f"{target['language']}:{target['term']}" for target in entry["targets"]),
+                    "target_count": len(entry["targets"]),
+                    "all_count": entry["all_count"],
                     "words": len(TERM_RE.findall(entry["text"])),
                     "ids": entry["ids"],
                     "duration_s": f"{duration:.3f}",
@@ -670,6 +870,8 @@ def main() -> int:
 
     print(f"wrote {done} WAVs ({reused} reused) in {(time.time() - started) / 60:.1f} min")
     print(f"metadata: {metadata_path}")
+    print(f"review metadata: {review_path}")
+    print(f"coverage: {coverage_path}")
     print(f"manifest: {manifest_path}")
     if failed:
         print(f"failed: {len(failed)}")
