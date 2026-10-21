@@ -11,3 +11,5 @@ coverage/
 *.lcov
 
 tmp/
+
+__pycache__
