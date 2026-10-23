@@ -40,5 +40,8 @@
       ]
     }
   ],
-  "pages": null
+  "pages": {
+    "branch": "{branch}",
+    "path": "/"
+  }
 }
