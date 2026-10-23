@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "dhamma-initiative/dt.o-suttas-builder",
+    "releaseTag": "build-{version}",
+    "asset": "dt.o-suttas-builder-{version}.tgz"
+  },
+  "mappings": [
+    {
+      "from": "build/phoneme",
+      "to": "training/suttas/phoneme",
+      "mode": "replace"
+    },
+    {
+      "from": "build/version-manifest.json",
+      "to": "training/suttas/version-manifest.json",
+      "mode": "file"
+    },
+    {
+      "from": "build/verification-report.json",
+      "to": "training/suttas/verification-report.json",
+      "mode": "file",
+      "optional": true
+    },
+    {
+      "from": "build/source-sync-report.json",
+      "to": "training/suttas/source-sync-report.json",
+      "mode": "file",
+      "optional": true
+    }
+  ],
+  "provenanceFile": "training/suttas/release-manifest.json",
+  "post": [
+    {
+      "command": "python3",
+      "args": [
+        "scripts/generate_phoneme_config.py",
+        "--suttas-dir",
+        "training/suttas"
+      ]
+    }
+  ],
+  "pages": null
+}

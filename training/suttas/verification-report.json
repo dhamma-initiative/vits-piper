@@ -1,0 +1,49 @@
+{
+  "version": "261020",
+  "generatedAt": "2026-10-23T03:31:06.529Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "version",
+      "status": "pass",
+      "detail": "build version 261020",
+      "evidence": []
+    },
+    {
+      "id": "text.manifests",
+      "status": "pass",
+      "detail": "1439 sutta text files across 11 catalogs",
+      "evidence": []
+    },
+    {
+      "id": "books.structure",
+      "status": "pass",
+      "detail": "11 books, 2878 balanced BOF/EOF markers",
+      "evidence": []
+    },
+    {
+      "id": "vector-index",
+      "status": "pass",
+      "detail": "8086 chunks, 1439 source files, 12420096 bytes, bge-small-en-v1.5-261020-v2",
+      "evidence": []
+    },
+    {
+      "id": "phoneme-dictionaries",
+      "status": "pass",
+      "detail": "10630 English, 1763 Pali entries; overrides applied",
+      "evidence": []
+    },
+    {
+      "id": "phoneme-map",
+      "status": "pass",
+      "detail": "172 map symbols; 0 missing",
+      "evidence": []
+    },
+    {
+      "id": "pwa-contract",
+      "status": "pass",
+      "detail": "30 required artifact paths",
+      "evidence": []
+    }
+  ]
+}

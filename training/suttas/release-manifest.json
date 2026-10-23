@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "target": "vits-piper",
+  "source": {
+    "repository": "dhamma-initiative/dt.o-suttas-builder",
+    "releaseTag": "build-261020",
+    "asset": "dt.o-suttas-builder-261020.tgz",
+    "sha256": "9d680c0d9ed748a9aed4ca3fa6dadf3d4b2db705b4ffaea0e2f59d95ea8c3bea"
+  },
+  "build": {
+    "version": "2610.20.00",
+    "buildVersion": "261020",
+    "source": "https://www.dhammatalks.org/suttas/",
+    "sourceDate": "2026-10-20",
+    "generatedAt": "2026-10-23T03:12:33.931Z"
+  },
+  "hydratedAt": "2026-10-23T03:59:00.610Z",
+  "mappings": [
+    {
+      "from": "build/phoneme",
+      "to": "training/suttas/phoneme",
+      "mode": "replace"
+    },
+    {
+      "from": "build/version-manifest.json",
+      "to": "training/suttas/version-manifest.json",
+      "mode": "file"
+    },
+    {
+      "from": "build/verification-report.json",
+      "to": "training/suttas/verification-report.json",
+      "mode": "file",
+      "optional": true
+    },
+    {
+      "from": "build/source-sync-report.json",
+      "to": "training/suttas/source-sync-report.json",
+      "mode": "file",
+      "optional": true
+    }
+  ],
+  "fileCount": 5585
+}
