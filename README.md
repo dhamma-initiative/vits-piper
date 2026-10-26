@@ -23,10 +23,10 @@ hash-identical. No hand edits.
 `dhamma-initiative/vits-piper` is a gated release step (G5). GitHub Pages is
 not enabled on the private repo.
 
-## Open question for G0
+## Confirmed contract
 
-Confirm whether `vector-index/` belongs here or in `suttas`. The current app
-contract keeps it in `suttas`; do not move it without an ADR.
+`vector-index/` stays in `suttas`; this endpoint carries only the model and
+runtime phonemizer config. See `ADR-0005` in the orchestration repo.
 
 ## Collaboration
 

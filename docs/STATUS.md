@@ -6,5 +6,4 @@
 - **Next:** write the contract and hash-equality test; wait for the first model
   release
 - **Blockers:** `TASK-0004`, `TASK-0005`
-- **Open question:** confirm whether `vector-index/` belongs here or in
-  `suttas` at G0
+- **Contract:** `vector-index/` stays in `suttas` (ADR-0005)
