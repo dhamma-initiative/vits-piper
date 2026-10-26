@@ -1,0 +1,34 @@
+# vits-piper (OC staging endpoint)
+
+Private staging repository for the public model/phonemizer endpoint consumed by
+SuttaPlayer.
+
+**Status:** scaffolded · **Owner:** endpoint domain agent · **Task:**
+`TASK-0007`
+
+## Contract
+
+Generated from a model release:
+
+- `version-manifest.json`
+- `phoneme/phonemizer-config.json` — map + dictionary references
+- model ONNX + `.onnx.json` config
+
+The model config, training map and endpoint phonemizer map must be
+hash-identical. No hand edits.
+
+## Publishing
+
+`vits-piper-oc` is private staging. Public promotion to
+`dhamma-initiative/vits-piper` is a gated release step (G5). GitHub Pages is
+not enabled on the private repo.
+
+## Open question for G0
+
+Confirm whether `vector-index/` belongs here or in `suttas`. The current app
+contract keeps it in `suttas`; do not move it without an ADR.
+
+## Collaboration
+
+- `collaboration/inbox/` — director → agent
+- `collaboration/sent/` — agent → director
