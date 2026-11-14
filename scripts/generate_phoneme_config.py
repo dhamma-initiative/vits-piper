@@ -19,7 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SUTTAS_DIR = REPO_ROOT.parent / "suttas"
 DEFAULT_OUTPUT = REPO_ROOT / "phoneme" / "phonemizer-config.json"
 DEFAULT_BASE_URL = "https://dhamma-initiative.github.io/suttas/"
-DEFAULT_MODEL_BASE_URL = "https://dhamma-initiative.github.io/vits-piper/"
+DEFAULT_MODEL_BASE_URL = ""  # relative to the endpoint base
 
 EN_MAP_FILENAME = "pho_en[gb]-to-espeak-v1.51-ipa.json"
 PI_MAP_FILENAME = "pho_pi[si]-to-aksharamukha-2.1.0-ipa.json"
@@ -139,7 +139,7 @@ def build_config(
         if release_path.exists():
             release = read_json(release_path)
             canonical = release.get("canonical", "en_gb-suttaplayer-medium")
-            base = model_base_url.rstrip("/") + "/model/"
+            base = (model_base_url.rstrip("/") + "/model/") if model_base_url else "model/"
             onnx = model_dir / f"{canonical}.onnx"
             onnx_json = model_dir / f"{canonical}.onnx.json"
             adapter = model_dir / f"{canonical}.adapter.json"
@@ -226,6 +226,12 @@ def parse_args() -> argparse.Namespace:
         help=f"Output config path (default: {DEFAULT_OUTPUT})",
     )
     parser.add_argument(
+        "--manifest-output",
+        type=Path,
+        default=REPO_ROOT / "version-manifest.json",
+        help="Endpoint version manifest path",
+    )
+    parser.add_argument(
         "--model-dir",
         type=Path,
         default=REPO_ROOT / "model",
@@ -234,7 +240,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model-base-url",
         default=DEFAULT_MODEL_BASE_URL,
-        help=f"Public vits-piper base URL (default: {DEFAULT_MODEL_BASE_URL})",
+        help="Public vits-piper base URL; empty emits paths relative to the endpoint",
     )
     parser.add_argument(
         "--allow-missing-model",
@@ -270,6 +276,29 @@ def main() -> int:
         f"(model {config['modelVersion']}, "
         f"source {config['english_ipa_map']['sourceVersion']})"
     )
+
+    if args.manifest_output:
+        config["generatedAt"] = __import__("datetime").datetime.now(
+            __import__("datetime").timezone.utc
+        ).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        manifest = {
+            "version": config["modelVersion"],
+            "modelVersion": config["modelVersion"],
+            "corpusVersion": config["pali_ipa_map"].get("sourceBuildVersion"),
+            "sourceVersion": config["english_ipa_map"].get("sourceVersion"),
+            "generatedAt": config["generatedAt"],
+            "adapters": {
+                "model": config.get("model"),
+                "quant": config.get("modelQuant"),
+                "phoneme": config.get("modelAdapter"),
+            },
+        }
+        args.manifest_output.parent.mkdir(parents=True, exist_ok=True)
+        args.manifest_output.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"wrote {args.manifest_output}")
 
     if args.check_remote:
         verify_remote(config)
