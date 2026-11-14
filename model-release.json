@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "repository": "dhamma-initiative/dt.o-tts-trainer-oc",
+  "tag": "model-281109-projected2",
+  "modelVersion": "ver2-281109-projected2",
+  "voice": "en_gb-suttaplayer-281109-projected2",
+  "adapterId": "pali-en-gb-v1",
+  "canonical": "en_gb-suttaplayer-medium",
+  "assets": {
+    "onnx": "en_gb-suttaplayer-281109-projected2.onnx",
+    "config": "en_gb-suttaplayer-281109-projected2.onnx.json",
+    "adapter": "en_gb-suttaplayer-281109-projected2.adapter.json"
+  }
+}
