@@ -156,6 +156,18 @@ def build_config(
             if onnx_json.exists():
                 config["model"]["configUrl"] = base + onnx_json.name
                 config["model"]["configSha256"] = sha256_file(onnx_json)
+            quant = model_dir / f"{canonical}-quant.onnx"
+            quant_json = model_dir / f"{canonical}-quant.onnx.json"
+            if quant.exists():
+                config["modelQuant"] = {
+                    "id": f"{canonical}-quant",
+                    "url": base + quant.name,
+                    "sha256": sha256_file(quant),
+                    "sizeBytes": quant.stat().st_size,
+                }
+                if quant_json.exists():
+                    config["modelQuant"]["configUrl"] = base + quant_json.name
+                    config["modelQuant"]["configSha256"] = sha256_file(quant_json)
             if adapter.exists():
                 config["modelAdapter"] = {
                     "adapterId": release.get("adapterId", "pali-en-gb-v1"),
@@ -166,6 +178,13 @@ def build_config(
 
 
 def verify_remote(config: dict) -> None:
+    for key in ("model", "modelQuant"):
+        if key in config and config[key].get("url"):
+            dependency = config[key]
+            actual = sha256_url(dependency["url"])
+            if actual != dependency["sha256"]:
+                raise SystemExit(f"Remote SHA-256 mismatch for {dependency['url']}: expected {dependency['sha256']}, got {actual}")
+            print(f"verified {dependency['url']} ({actual})")
     if "modelAdapter" in config:
         dependency = config["modelAdapter"]
         actual = sha256_url(dependency["url"])

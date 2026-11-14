@@ -9,6 +9,7 @@
   "assets": {
     "onnx": "en_gb-suttaplayer-281109-projected2.onnx",
     "config": "en_gb-suttaplayer-281109-projected2.onnx.json",
-    "adapter": "en_gb-suttaplayer-281109-projected2.adapter.json"
+    "adapter": "en_gb-suttaplayer-281109-projected2.adapter.json",
+    "quant": "en_gb-suttaplayer-281109-projected2-quant.onnx"
   }
 }
