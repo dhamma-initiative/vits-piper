@@ -3,7 +3,7 @@
   "modelVersion": "ver2-281109-projected2",
   "corpusVersion": "261115",
   "sourceVersion": "2611.15.00",
-  "generatedAt": "2026-11-15T10:32:47.000Z",
+  "generatedAt": "2026-11-15T23:00:04.000Z",
   "adapters": {
     "model": {
       "id": "en_gb-suttaplayer-medium",
@@ -13,14 +13,7 @@
       "configUrl": "model/en_gb-suttaplayer-medium.onnx.json",
       "configSha256": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936"
     },
-    "quant": {
-      "id": "en_gb-suttaplayer-medium-quant",
-      "url": "model/en_gb-suttaplayer-medium-quant.onnx",
-      "sha256": "5069fc2ab51832194390232f253d9d5edd8f820b94a7b1ff15112f4afb374a89",
-      "sizeBytes": 18515133,
-      "configUrl": "model/en_gb-suttaplayer-medium-quant.onnx.json",
-      "configSha256": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936"
-    },
+    "quant": null,
     "phoneme": {
       "adapterId": "pali-en-gb-v1",
       "url": "model/en_gb-suttaplayer-medium.adapter.json",
