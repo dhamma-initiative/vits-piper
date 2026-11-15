@@ -112,6 +112,7 @@ def build_config(
         maps.append(
             {
                 "url": base + "phoneme/" + filename,
+                "path": "phoneme/" + filename,
                 "sha256": sha256_file(path),
                 "sourceVersion": str(source_version),
                 "sourceBuildVersion": str(source_build_version or ""),
