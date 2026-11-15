@@ -11,7 +11,7 @@
   "pali_ipa_map": {
     "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
     "path": "phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
-    "sha256": "47256daccc05983ff30e90c66727abeca317e7fea3cb491fef6067595f78a825",
+    "sha256": "f7dfea397d6de375ad8748aab7f64efc4acdb20263dda908c943d73ae187c71a",
     "sourceVersion": "2611.15.00",
     "sourceBuildVersion": "261115"
   },

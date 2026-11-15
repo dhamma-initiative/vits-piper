@@ -5,7 +5,7 @@
     "repository": "dhamma-initiative/dt.o-suttas-builder",
     "releaseTag": "build-261115",
     "asset": "dt.o-suttas-builder-261115.tgz",
-    "sha256": "d017c00436d5747b57ce993c8ec2ecf786bb4a3810ccc70885194ebf87c8889a"
+    "sha256": "c2466a3606c90cb318a03d73e25c5f6a51ad0492ca42ff3fb537760cffcda381"
   },
   "build": {
     "version": "2611.15.00",
@@ -14,7 +14,7 @@
     "sourceDate": "2026-11-15",
     "generatedAt": "2026-11-14T22:42:25.175Z"
   },
-  "hydratedAt": "2026-11-15T04:02:56.800Z",
+  "hydratedAt": "2026-11-15T10:32:47.428Z",
   "mappings": [
     {
       "from": "build/phoneme",
