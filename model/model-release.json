@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "repository": "dhamma-initiative/dt.o-tts-trainer-oc",
+  "tag": "model-281109-projected2",
+  "modelVersion": "ver2-281109-projected2",
+  "voice": "en_gb-suttaplayer-281109-projected2",
+  "adapterId": "pali-en-gb-v1",
+  "canonical": "en_gb-suttaplayer-medium",
+  "assets": {
+    "onnx": "en_gb-suttaplayer-281109-projected2.onnx",
+    "config": "en_gb-suttaplayer-281109-projected2.onnx.json",
+    "adapter": "en_gb-suttaplayer-281109-projected2.adapter.json",
+    "quant": "en_gb-suttaplayer-281109-projected2-quant.onnx"
+  },
+  "resolvedTag": "model-281109-projected2",
+  "resolvedRepository": "dhamma-initiative/dt.o-tts-trainer-oc",
+  "sha256": {
+    "onnx": "9a2afe4c801e30f9b99427e6bf57074fc2f050032ec9a4525d815c4dd65ee458",
+    "quant": "eeb6b3bd88fc596ad29cf838448a3349d9c53621444fe9e42bb7ae14ce135530",
+    "config": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936",
+    "adapter": "2e37e50de230db82df8df5acefc2d0330e30069d98e82ee2d4d6396a743bf72d"
+  },
+  "sizeBytes": 63516051
+}

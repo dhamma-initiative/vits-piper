@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "ver2-281109-projected2",
+  "english_ipa_map": {
+    "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
+    "path": "phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
+    "sha256": "51c5ca416282c23b3b891e2939e3677d90830d7e87c486858b374380b5c7ef33",
+    "sourceVersion": "2611.15.00",
+    "sourceBuildVersion": "261115"
+  },
+  "pali_ipa_map": {
+    "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
+    "path": "phoneme/pho_pi[si]-to-aksharamukha-2.1.0-ipa.json",
+    "sha256": "47256daccc05983ff30e90c66727abeca317e7fea3cb491fef6067595f78a825",
+    "sourceVersion": "2611.15.00",
+    "sourceBuildVersion": "261115"
+  },
+  "tokenize": true,
+  "strictMode": false,
+  "preProcessRegExFindReplaceList": [
+    [
+      "[-–—]?[^\\S\\r\\n]*&[^\\S\\r\\n]*[-–—]?",
+      " and "
+    ],
+    [
+      "&",
+      " and "
+    ],
+    [
+      "(DHAMMAPADA|ITIVUTTAKA|KHUDDAKAPĀṬHA)",
+      "$1."
+    ],
+    [
+      "(SUTTA NIPĀTA|THERAGĀTHĀ|THERĪGĀTHĀ|UDĀNA)\\s+([:\\d]+)",
+      "$1. $2."
+    ],
+    [
+      "\\s+((AṄGUTTARA|DĪGHA|MAJJHIMA|SAṀYUTTA)\\s+NIKĀYA)",
+      ". $1."
+    ],
+    [
+      "\\bblessed(\\s+one)\\b",
+      "bless'ed$1",
+      "gmiu"
+    ],
+    [
+      "\\b(in|past|their|future|previous|former|of|entire|the)\\s+lives\\b",
+      "$1 lyves",
+      "gmiu"
+    ]
+  ],
+  "postProcessRegExFindReplList": [
+    [
+      "=",
+      " "
+    ],
+    [
+      "[\\u200b-\\u200d\\ufeff\\u200e\\u200f]",
+      "",
+      "g"
+    ]
+  ],
+  "patchProcessRegExFindReplList": [],
+  "dictionaryResponder": {
+    "customPhonemes": {}
+  },
+  "invalidTerm": "ˈɪn vˈælɪd tˈɜːm",
+  "model": {
+    "id": "en_gb-suttaplayer-medium",
+    "url": "model/en_gb-suttaplayer-medium.onnx",
+    "sha256": "9a2afe4c801e30f9b99427e6bf57074fc2f050032ec9a4525d815c4dd65ee458",
+    "sizeBytes": 63516051,
+    "configUrl": "model/en_gb-suttaplayer-medium.onnx.json",
+    "configSha256": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936"
+  },
+  "modelQuant": {
+    "id": "en_gb-suttaplayer-medium-quant",
+    "url": "model/en_gb-suttaplayer-medium-quant.onnx",
+    "sha256": "eeb6b3bd88fc596ad29cf838448a3349d9c53621444fe9e42bb7ae14ce135530",
+    "sizeBytes": 63898749,
+    "configUrl": "model/en_gb-suttaplayer-medium-quant.onnx.json",
+    "configSha256": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936"
+  },
+  "modelAdapter": {
+    "adapterId": "pali-en-gb-v1",
+    "url": "model/en_gb-suttaplayer-medium.adapter.json",
+    "sha256": "2e37e50de230db82df8df5acefc2d0330e30069d98e82ee2d4d6396a743bf72d"
+  }
+}
