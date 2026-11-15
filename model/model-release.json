@@ -16,7 +16,7 @@
   "resolvedRepository": "dhamma-initiative/dt.o-tts-trainer-oc",
   "sha256": {
     "onnx": "9a2afe4c801e30f9b99427e6bf57074fc2f050032ec9a4525d815c4dd65ee458",
-    "quant": "eeb6b3bd88fc596ad29cf838448a3349d9c53621444fe9e42bb7ae14ce135530",
+    "quant": "5069fc2ab51832194390232f253d9d5edd8f820b94a7b1ff15112f4afb374a89",
     "config": "98c8363ef872314eb599744da6fb90cc70a3da8c288558de8b9e62ab374b3936",
     "adapter": "2e37e50de230db82df8df5acefc2d0330e30069d98e82ee2d4d6396a743bf72d"
   },
