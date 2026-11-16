@@ -4,7 +4,7 @@
   "english_ipa_map": {
     "url": "https://dhamma-initiative.github.io/suttas/phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
     "path": "phoneme/pho_en[gb]-to-espeak-v1.51-ipa.json",
-    "sha256": "51c5ca416282c23b3b891e2939e3677d90830d7e87c486858b374380b5c7ef33",
+    "sha256": "1b82e26dc436674b7591ad1cb427a3049637edad33147ed62651f23b3a460152",
     "sourceVersion": "2611.15.00",
     "sourceBuildVersion": "261115"
   },
