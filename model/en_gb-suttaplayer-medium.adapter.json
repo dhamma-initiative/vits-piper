@@ -131,12 +131,14 @@
   },
   "dictionaryResponder": {
     "customPhonemes": {
-      "mettā": "metθɑː"
+      "mettā": "metθɑː",
+      "penchant": "pˈɛntʃɛnt"
     }
   },
   "notes": [
     "Apply the pali rules only to Pali phoneme output; the english list is empty.",
     "Rules are inert for English and are validated on every generation.",
-    "Canonical dictionaries remain the source of phonetic truth."
+    "Canonical dictionaries remain the source of phonetic truth.",
+    "English customPhonemes are model-specific corrections: the canonical en-GB dictionary keeps pˈɒnʃɒn for penchant; this voice renders pˈɛntʃɛnt."
   ]
 }

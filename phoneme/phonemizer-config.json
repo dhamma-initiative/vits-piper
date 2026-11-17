@@ -76,6 +76,6 @@
   "modelAdapter": {
     "adapterId": "pali-en-gb-v1",
     "url": "model/en_gb-suttaplayer-medium.adapter.json",
-    "sha256": "2e37e50de230db82df8df5acefc2d0330e30069d98e82ee2d4d6396a743bf72d"
+    "sha256": "e9b429a0c245fda0f65e9af67184d7bee9684fb40487322645b6c813b1d6d44a"
   }
 }
